@@ -13,6 +13,7 @@
             <tr>
               <th scope="col">Name</th>
               <th scope="col">Altitude</th>
+              <th scope="col">Position</th>
               <th></th>
             </tr>
           </thead>
@@ -20,6 +21,7 @@
             <tr v-for="(peak, index) in peaks" :key="index">
               <td>{{ peak.name }}</td>
               <td>{{ peak.altitude }}</td>
+              <td>{{ peak.position }}</td>
               <td>
                 <div class="btn-group" role="group">
                   <button
@@ -58,15 +60,25 @@
           </b-form-input>
         </b-form-group>
         <b-form-group id="form-altitude-group"
-                      label="Altitude:"
-                      label-for="form-altitude-input">
-            <b-form-input id="form-altitude-input"
-                          type="text"
-                          v-model="addPeakForm.altitude"
-                          required
-                          placeholder="Enter altitude">
-            </b-form-input>
-          </b-form-group>
+                    label="Altitude:"
+                    label-for="form-altitude-input">
+          <b-form-input id="form-altitude-input"
+                        type="text"
+                        v-model="addPeakForm.altitude"
+                        required
+                        placeholder="Enter altitude">
+          </b-form-input>
+        </b-form-group>
+        <b-form-group id="form-position-group"
+                    label="Position:"
+                    label-for="form-position-input">
+          <b-form-input id="form-position-input"
+                        type="text"
+                        v-model="addPeakForm.position"
+                        required
+                        placeholder="Enter position (geojson)">
+          </b-form-input>
+        </b-form-group>
         <b-button-group>
           <b-button type="submit" variant="primary">Submit</b-button>
           <b-button type="reset" variant="danger">Reset</b-button>
@@ -78,7 +90,7 @@
             title="Update"
             hide-footer>
       <b-form @submit="onSubmitUpdate" @reset="onResetUpdate" class="w-100">
-      <b-form-group id="form-name-edit-group"
+        <b-form-group id="form-name-edit-group"
                     label="Name:"
                     label-for="form-name-edit-input">
           <b-form-input id="form-name-edit-input"
@@ -89,15 +101,25 @@
           </b-form-input>
         </b-form-group>
         <b-form-group id="form-altitude-edit-group"
-                      label="Altitude:"
-                      label-for="form-altitude-edit-input">
-            <b-form-input id="form-altitude-edit-input"
-                          type="text"
-                          v-model="editForm.altitude"
-                          required
-                          placeholder="Enter altitude">
-            </b-form-input>
-          </b-form-group>
+                    label="Altitude:"
+                    label-for="form-altitude-edit-input">
+          <b-form-input id="form-altitude-edit-input"
+                        type="text"
+                        v-model="editForm.altitude"
+                        required
+                        placeholder="Enter altitude">
+          </b-form-input>
+        </b-form-group>
+        <b-form-group id="form-position-edit-group"
+                    label="Position:"
+                    label-for="form-position-edit-input">
+          <b-form-input id="form-position-edit-input"
+                        type="text"
+                        v-model="editForm.position"
+                        required
+                        placeholder="Enter position">
+          </b-form-input>
+        </b-form-group>
         <b-button-group>
           <b-button type="submit" variant="primary">Update</b-button>
           <b-button type="reset" variant="danger">Cancel</b-button>
@@ -118,6 +140,7 @@ export default {
       addPeakForm: {
         name: '',
         altitude: '',
+        position: '',
       },
       message: '',
       showMessage: false,
@@ -125,6 +148,7 @@ export default {
         id: '',
         name: '',
         altitude: '',
+        position: '',
       },
     };
   },
@@ -160,9 +184,11 @@ export default {
     initForm() {
       this.addPeakForm.name = '';
       this.addPeakForm.altitude = '';
+      this.addPeakForm.position = '';
       this.editForm.id = '';
       this.editForm.name = '';
       this.editForm.altitude = '';
+      this.editForm.position = '';
     },
     onSubmit(evt) {
       evt.preventDefault();
@@ -170,6 +196,7 @@ export default {
       const payload = {
         name: this.addPeakForm.name,
         altitude: this.addPeakForm.altitude,
+        position: this.addPeakForm.position,
       };
       this.addPeak(payload);
       this.initForm();
@@ -189,6 +216,7 @@ export default {
         id: this.editForm.id,
         name: this.editForm.name,
         altitude: this.editForm.altitude,
+        position: this.editForm.position,
       };
       this.updatePeak(payload, this.editForm.id);
     },

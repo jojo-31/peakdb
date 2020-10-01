@@ -5,14 +5,19 @@ PEAKS = [
     {
         'name': 'Mont Valier',
         'altitude': 2838,
+        'position': { 'type': "Point", 'coordinates': [ 42.79778,1.08556 ] }
     },
     {
         'name': 'Pic de Maubermé',
         'altitude': 2880,
+        'position': { 'type': "Point", 'coordinates': [ 42.79417,0.91722 ] }
+
     },
     {
         'name': 'Pic de Crabère',
         'altitude': 2630,
+        'position': { 'type': "Point", 'coordinates': [ 42.826039, 0.858633 ] }
+
     },
 ]
 class DB():
@@ -30,6 +35,7 @@ class DB():
         return peaks
 
     def add_peak(self, peak: dict):
+        peak["position"] = json.loads(peak["position"])
         self.db.posts.insert_one(peak)
 
     def update_peak(self, peak_id: int, peak: dict):
@@ -37,6 +43,7 @@ class DB():
         _id = loads(peak_id)
         del peak["id"]
         query = {"_id": _id}
+        peak["position"] = json.loads(peak["position"])
         self.db.posts.update_one(query, {"$set": peak})
 
     def remove_peak(self, peak_id: int):
