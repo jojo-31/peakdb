@@ -34,6 +34,12 @@ def all_peaks():
         response_object['peaks'] = db.get_peaks()
     return jsonify(response_object)
 
+@app.route('/peaks_in_bb/<bottom_left>/<upper_right>', methods=['GET'])
+def get_peaks_in_bb(bottom_left: str, upper_right:str):
+    response_object = {'status': 'success'}
+    response_object['peaks'] = db.get_peaks_in_bb(bottom_left,upper_right)
+    return jsonify(response_object)
+
 @app.route('/peaks/<peak_id>', methods=['PUT', 'DELETE'])
 def single_peak(peak_id: int):
     response_object = {'status': 'success'}
