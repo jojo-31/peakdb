@@ -4,7 +4,16 @@
       <div class="col-sm-10">
         <h1>Peaks</h1>
         <hr><br><br>
-        <button type="button" class="btn btn-success btn-sm" v-b-modal.peak-modal>Add Peak</button>
+        <b-form @submit="getPeaks">
+          <b-button type="submit" class="btn btn-success btn-sm">All Peaks</b-button>
+        </b-form>
+        <button type="button" class="btn btn-success btn-sm" v-b-modal.peaks-in-bb-modal>
+          Peaks In BoundingBox
+        </button>
+        <br>
+        <button type="button" class="btn btn-success btn-sm" v-b-modal.add-peak-modal>
+          Add Peak
+        </button>
         <br>
         <alert :message=message v-if="showMessage"></alert>
         <br>
@@ -44,8 +53,41 @@
         </table>
       </div>
     </div>
+
+    <b-modal ref="peakInBbModal"
+            id="peaks-in-bb-modal"
+            title="Get all peaks in bounding box"
+            hide-footer>
+      <b-form @submit="onSubmitPeaksInBb" @reset="onResetPeaksInBb" class="w-100">
+      <b-form-group id="form-bottomleft-group"
+                    label="Bottom-left:"
+                    label-for="form-bottomleft-input">
+          <b-form-input id="form-bottomleft-input"
+                        type="text"
+                        v-model="peaksInBbForm.bottomleft"
+                        required
+                        placeholder="Bottom left point [lon lat]">
+          </b-form-input>
+        </b-form-group>
+        <b-form-group id="form-upperright-group"
+                    label="Upper right:"
+                    label-for="form-upperright-input">
+          <b-form-input id="form-upperright-input"
+                        type="text"
+                        v-model="peaksInBbForm.upperright"
+                        required
+                        placeholder="Upper right point [lon lat]">
+          </b-form-input>
+        </b-form-group>
+        <b-button-group>
+          <b-button type="submit" variant="primary">Submit</b-button>
+          <b-button type="reset" variant="danger">Reset</b-button>
+        </b-button-group>
+      </b-form>
+    </b-modal>
+
     <b-modal ref="addPeakModal"
-            id="peak-modal"
+            id="add-peak-modal"
             title="Add a new peak"
             hide-footer>
       <b-form @submit="onSubmit" @reset="onReset" class="w-100">
@@ -85,6 +127,7 @@
         </b-button-group>
       </b-form>
     </b-modal>
+
     <b-modal ref="editPeakModal"
             id="peak-update-modal"
             title="Update"
@@ -150,6 +193,10 @@ export default {
         altitude: '',
         position: '',
       },
+      peaksInBbForm: {
+        bottomleft: '',
+        upperright: '',
+      },
     };
   },
   components: {
@@ -157,7 +204,18 @@ export default {
   },
   methods: {
     getPeaks() {
-      const path = 'http://localhost:5000/peaks';
+      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks`;
+      axios.get(path)
+        .then((res) => {
+          this.peaks = res.data.peaks;
+        })
+        .catch((error) => {
+          // eslint-disable-next-line
+          console.error(error);
+        });
+    },
+    getPeaksInBb(payload) {
+      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks_in_bb/${payload.bottomleft}/${payload.upperright}`;
       axios.get(path)
         .then((res) => {
           this.peaks = res.data.peaks;
@@ -168,7 +226,7 @@ export default {
         });
     },
     addPeak(payload) {
-      const path = 'http://localhost:5000/peaks';
+      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks`;
       axios.post(path, payload)
         .then(() => {
           this.getPeaks();
@@ -189,6 +247,21 @@ export default {
       this.editForm.name = '';
       this.editForm.altitude = '';
       this.editForm.position = '';
+    },
+    onSubmitPeaksInBb(evt) {
+      evt.preventDefault();
+      this.$refs.peakInBbModal.hide();
+      const payload = {
+        bottomleft: this.peaksInBbForm.bottomleft,
+        upperright: this.peaksInBbForm.upperright,
+      };
+      this.getPeaksInBb(payload);
+      this.initForm();
+    },
+    onResetPeaksInBb(evt) {
+      evt.preventDefault();
+      this.$refs.peakInBbModal.hide();
+      this.initForm();
     },
     onSubmit(evt) {
       evt.preventDefault();
