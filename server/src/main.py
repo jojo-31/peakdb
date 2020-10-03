@@ -1,56 +1,50 @@
+import logging.config
 from flask_cors import CORS
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Blueprint
 from database.db import DB
 import uuid
-
-# configuration
-DEBUG = True
+import os
+from api import restplus
+from api.peaks.endpoints import ns as peaks_ns
+import settings
 
 # instantiate the app
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config['MONGODB_SETTINGS'] = {
-    'host': 'mongodb://localhost/peaks'
-}
 
-db = DB()
+logging_conf_path = os.path.normpath(
+    os.path.join(os.path.dirname(__file__), "../logging.conf")
+)
+logging.config.fileConfig(logging_conf_path)
+log = logging.getLogger(__name__)
 
-# enable CORS
-CORS(app, resources={r'/*': {'origins': '*'}})
 
-# sanity check route
-@app.route('/ping', methods=['GET'])
-def ping_pong():
-    return jsonify('pong!')
+def configure_app(app):
+    app.config["MONGODB_SETTINGS"] = {"host": "mongodb://localhost/peaks"}
 
-@app.route('/peaks', methods=['GET', 'POST'])
-def all_peaks():
-    response_object = {'status': 'success'}
-    if request.method == 'POST':
-        post_data = request.get_json()
-        db.add_peak(post_data)
-        response_object['message'] = 'Peak added!'
-    else:
-        response_object['peaks'] = db.get_peaks()
-    return jsonify(response_object)
 
-@app.route('/peaks_in_bb/<bottom_left>/<upper_right>', methods=['GET'])
-def get_peaks_in_bb(bottom_left: str, upper_right:str):
-    response_object = {'status': 'success'}
-    response_object['peaks'] = db.get_peaks_in_bb(bottom_left,upper_right)
-    return jsonify(response_object)
+def create_blueprint(app):
+    blueprint = Blueprint("peaks", __name__, url_prefix="/peaks")
+    restplus.api.init_app(blueprint)
+    restplus.api.add_namespace(peaks_ns)
 
-@app.route('/peaks/<peak_id>', methods=['PUT', 'DELETE'])
-def single_peak(peak_id: int):
-    response_object = {'status': 'success'}
-    post_data = request.get_json()
-    if request.method == 'PUT':
-        db.update_peak(peak_id, post_data)
-        response_object['message'] = 'Peak updated!'
-    if request.method == 'DELETE':
-        db.remove_peak(peak_id)
-        response_object['peak_id'] = 'Peak removed!'
-    return jsonify(response_object)
+    CORS(blueprint, resources={r"*": {"origins": "*"}})
+    app.register_blueprint(blueprint)
 
-if __name__ == '__main__':
-    app.run()
+
+@app.after_request
+def after_request(response):
+    response.headers.set("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    # response.headers.set("Content-Type", "application/json")
+    return response
+
+
+def main():
+    configure_app(app)
+    create_blueprint(app)
+    app.run(debug=settings.DEBUG)
+
+
+if __name__ == "__main__":
+    main()

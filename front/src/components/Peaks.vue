@@ -204,10 +204,10 @@ export default {
   },
   methods: {
     getPeaks() {
-      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks`;
+      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks/peaks`;
       axios.get(path)
         .then((res) => {
-          this.peaks = res.data.peaks;
+          this.peaks = res.data;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -215,10 +215,10 @@ export default {
         });
     },
     getPeaksInBb(payload) {
-      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks_in_bb/${payload.bottomleft}/${payload.upperright}`;
+      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks/peaks/${payload.bottomleft}/${payload.upperright}`;
       axios.get(path)
         .then((res) => {
-          this.peaks = res.data.peaks;
+          this.peaks = res.data;
         })
         .catch((error) => {
           // eslint-disable-next-line
@@ -226,7 +226,7 @@ export default {
         });
     },
     addPeak(payload) {
-      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks`;
+      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks/peaks`;
       axios.post(path, payload)
         .then(() => {
           this.getPeaks();
@@ -294,7 +294,7 @@ export default {
       this.updatePeak(payload, this.editForm.id);
     },
     updatePeak(payload, peakID) {
-      const path = `http://localhost:5000/peaks/${peakID}`;
+      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks/peaks/${peakID}`;
       axios.put(path, payload)
         .then(() => {
           this.getPeaks();
@@ -311,10 +311,10 @@ export default {
       evt.preventDefault();
       this.$refs.editPeakModal.hide();
       this.initForm();
-      this.getPeaks(); // why?
+      this.getPeaks();
     },
     removePeak(peakID) {
-      const path = `http://localhost:5000/peaks/${peakID}`;
+      const path = `${process.env.VUE_APP_BACKEND_URL}/peaks/peaks/${peakID}`;
       axios.delete(path)
         .then(() => {
           this.getPeaks();
