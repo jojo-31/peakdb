@@ -23,7 +23,7 @@ yum install virtualenvwrapper
 mkvirtualenv -p python3 peakdb
 workon peakdb
 pip install -r requirements.txt
-python setup.py develop
+python setup.py install
 ```
 
 Front:
@@ -35,14 +35,22 @@ npm install
 
 ## Development usage
 
+### Run the servers
+
 ```bash
-python server/src/main.py
+python server/peakdb/app.py
 cd front/
 npm run serve
 ```
 
 Front is served under localhost:8080
 Back under localhost:5000/peaks
+
+### Run the tests
+
+```bash
+pytest server/tests
+```
 
 ## Docker setup
 

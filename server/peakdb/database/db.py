@@ -5,6 +5,7 @@ import json
 from typing import List, Union
 import os
 import logging
+import datetime
 
 log = logging.getLogger(__name__)
 
@@ -25,6 +26,7 @@ class DB:
             self.db.posts.delete_many({})
             self.db.posts.insert_many(PEAKS)
             self.db.posts.create_index([("position", GEOSPHERE)])
+            self.ip_db = client.black_ips
         except Exception as e:
             log.error(e)
             log.error("Connection to DB impossible. Continuing anyway...")
@@ -107,3 +109,19 @@ class DB:
             peak["id"] = peak["_id"]
             del peak["_id"]
         return peaks
+
+    def add_black_ip(self, ip: str, date: datetime.datetime) -> bool:
+        """Add an IP that has been blacked.
+        Return True if it has indeed been inserted.
+        """
+        result = self.ip_db.posts.insert_one(
+            {"ip": ip, "date": date.strftime("%m/%d/%Y, %H:%M:%S")}
+        )
+        return result.acknowledged
+
+    def get_black_ips(self) -> List[dict]:
+        """Get a list of all blacked IPs"""
+        ips = list(self.ip_db.posts.find())
+        for ip in ips:
+            del ip["_id"]
+        return ips

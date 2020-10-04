@@ -1,5 +1,10 @@
-from database import db
+import os
 import pytest
+
+os.environ["MONGODB_HOSTNAME"] = "localhost"
+os.environ["MONGODB_PORT"] = "27017"
+os.environ["MONGODB_DATABASE"] = "peaks"
+from database import db
 
 PEAKS = [
     {"name": "Mont Valier", "altitude": 2838, "position": [42.79778, 1.08556]},

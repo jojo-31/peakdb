@@ -1,0 +1,2 @@
+# configuration
+WHITELIST = ["FR"]

@@ -15,3 +15,10 @@ peak = api.model(
         ),
     },
 )
+ip = api.model(
+    "ip",
+    {
+        "ip": fields.String(required=True, description="Black IP"),
+        "date": fields.String(required=True, description="Date of the request"),
+    },
+)

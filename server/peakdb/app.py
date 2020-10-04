@@ -1,14 +1,15 @@
+import os
+from pathlib import Path
 import logging.config
 from flask_cors import CORS
 from flask import Flask, jsonify, request, Blueprint, cli
 
-cli.load_dotenv()
+dir_path = Path(os.path.realpath(__file__)).parent / ".env"
+cli.load_dotenv(dir_path)
 
-from database.db import DB
-import uuid
-import os
 from api import restplus
-from api.peaks.endpoints import ns as peaks_ns
+from api.peaks.endpoints import ns_peaks
+from api.black_ips.endpoints import ns_ips
 
 # instantiate the app
 app = Flask(__name__)
@@ -21,11 +22,16 @@ logging.config.fileConfig(logging_conf_path)
 log = logging.getLogger(__name__)
 
 
-def create_blueprint(app):
+def create_blueprints(app):
     blueprint = Blueprint("peaks", __name__, url_prefix="/peaks")
     restplus.api.init_app(blueprint)
-    restplus.api.add_namespace(peaks_ns)
+    restplus.api.add_namespace(ns_peaks)
+    CORS(blueprint, resources={r"*": {"origins": "*"}})
+    app.register_blueprint(blueprint)
 
+    blueprint = Blueprint("ips", __name__, url_prefix="/ips")
+    restplus.api.init_app(blueprint)
+    restplus.api.add_namespace(ns_ips)
     CORS(blueprint, resources={r"*": {"origins": "*"}})
     app.register_blueprint(blueprint)
 
@@ -38,7 +44,7 @@ def after_request(response):
 
 
 def main():
-    create_blueprint(app)
+    create_blueprints(app)
     app.run(debug=os.environ["APP_DEBUG"])
 
 

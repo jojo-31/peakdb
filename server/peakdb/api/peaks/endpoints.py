@@ -5,32 +5,36 @@ import flask_cors
 from flask_restplus import Resource
 from api import restplus
 from database import db_instance
-from api import serializers
+from api import serializers, utilities
 
 log = logging.getLogger(__name__)
 
-ns = restplus.api.namespace("peaks", description="Operations related to peaks")
+ns_peaks = restplus.api.namespace("peaks", description="Operations related to peaks")
+ns_ips = restplus.api.namespace("ips", description="Operations related to black IPs")
 
 
-@ns.route("/")
+@ns_peaks.route("/")
 class PeakCollection(Resource):
     @restplus.api.marshal_list_with(serializers.peak)
+    @utilities.whitelisted
     def get(self):
         """Returns the list of all peaks"""
         return db_instance.get_peaks()
 
     @restplus.api.response(204, "Peak successfully created.")
     @restplus.api.expect(serializers.peak)
+    @utilities.whitelisted
     def post(self):
         """Add a new peak"""
         inserted_peak = db_instance.add_peak(request.json)
         return inserted_peak, 204
 
 
-@ns.route("/<string:peak_id>")
+@ns_peaks.route("/<string:peak_id>")
 @restplus.api.response(404, "Peak not found.")
 class PeakItem(Resource):
     @restplus.api.expect(serializers.peak)
+    @utilities.whitelisted
     @restplus.api.response(204, "Peak successfully updated.")
     def put(self, peak_id: str):
         """Update a peak
@@ -42,6 +46,7 @@ class PeakItem(Resource):
         return None, 204
 
     @restplus.api.response(204, "Peak successfully deleted.")
+    @utilities.whitelisted
     def delete(self, peak_id: str):
         """Delete a peak
 
@@ -52,9 +57,10 @@ class PeakItem(Resource):
         return None, 204
 
 
-@ns.route("/<string:bottom_left>/<string:upper_right>")
+@ns_peaks.route("/<string:bottom_left>/<string:upper_right>")
 class PeakSearch(Resource):
     @restplus.api.marshal_list_with(serializers.peak)
+    @utilities.whitelisted
     def get(self, bottom_left: str, upper_right: str):
         """Get all peaks within the given bounding box
         The given bounding box points should be a list of lon / lat,
@@ -66,3 +72,11 @@ class PeakSearch(Resource):
 
         """
         return db_instance.get_peaks_in_bb(bottom_left, upper_right)
+
+
+@ns_ips.route("/")
+class IpsCollection(Resource):
+    @restplus.api.marshal_list_with(serializers.ip)
+    def get(self):
+        """Returns the list of all peaks"""
+        return db_instance.get_black_ips()
