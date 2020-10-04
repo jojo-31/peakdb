@@ -9,6 +9,10 @@ const routes = [{
   path: '/peaks',
   name: 'Peaks',
   component: Peaks,
+},{
+  path: '/ips',
+  name: 'Ips',
+  component: Ips,
 }, {
   path: '/',
   name: 'Ips',

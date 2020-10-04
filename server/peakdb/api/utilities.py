@@ -15,10 +15,10 @@ def whitelisted(f):
 
         response = requests.get("http://ip-api.com/json/{}".format(ip_address))
         js = response.json()
-        db_instance.add_black_ip(ip_address, datetime.datetime.now())
         if js["status"] != "fail":
             country = js["countryCode"]
             if country not in settings.WHITELIST:
+                db_instance.add_black_ip(ip_address, datetime.datetime.now())
                 return None, 403
 
         return f(*args, **kwargs)
