@@ -2,7 +2,7 @@
   <div class='container'>
     <div class='row'>
       <div class='col-sm-10'>
-        <h1>Peaks</h1>
+        <h1>Blacked IPs</h1>
         <hr />
         <br />
         <br />
