@@ -2,7 +2,7 @@ import requests
 import datetime
 from functools import wraps
 from flask import request
-import settings
+from api import settings
 from database import db_instance
 
 
