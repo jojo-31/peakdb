@@ -26,7 +26,13 @@ class PeakCollection(Resource):
     @restplus.api.marshal_list_with(serializers.peak)
     @utilities.whitelisted
     def post(self):
-        """Add a new peak"""
+        """Add a new peak
+        
+        * The ID won't be taken into account
+        * Position should be a list of 2 floats, lon/lat, in decimal degrees, eg [12.5, 41.2].
+          As a convenience, equivalent string is accepted (eg, '[12.5, 41.2]')
+
+        """
         inserted_peak = db_instance.add_peak(request.json)
         return inserted_peak, 204
 
@@ -40,6 +46,9 @@ class PeakItem(Resource):
     def put(self, peak_id: str):
         """Update a peak
 
+        * Position should be a list of 2 floats, lon/lat, in decimal degrees, eg [12.5, 41.2].
+          As a convenience, equivalent string is accepted (eg, '[12.5, 41.2]')
+          
         Args:
             peak_id (str): ID of the peak
         """
@@ -70,8 +79,9 @@ class PeakSearch(Resource):
     @utilities.whitelisted
     def get(self, bottom_left: str, upper_right: str):
         """Get all peaks within the given bounding box
-        The given bounding box points should be a list of lon / lat,
-        in decimal degrees, eg: [40.2, 12.5]
+        The given bounding box points should be a list of 2 floats: 
+        lon / lat, in decimal degrees, eg: [40.2, 12.5].
+        As a convenience, equivalent string are accepted (eg, '[40.2, 12.5]')
 
         Args:
             bottom_left (str): Bottom left point of the bounding box
