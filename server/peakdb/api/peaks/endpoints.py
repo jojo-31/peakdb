@@ -23,6 +23,7 @@ class PeakCollection(Resource):
 
     @restplus.api.response(204, "Peak successfully created.")
     @restplus.api.expect(serializers.peak)
+    @restplus.api.marshal_list_with(serializers.peak)
     @utilities.whitelisted
     def post(self):
         """Add a new peak"""
@@ -42,8 +43,11 @@ class PeakItem(Resource):
         Args:
             peak_id (str): ID of the peak
         """
-        db_instance.update_peak(peak_id, request.json)
-        return None, 204
+        success = db_instance.update_peak(peak_id, request.json)
+        if success:
+            return None, 204
+        else:
+            return None, 404
 
     @restplus.api.response(204, "Peak successfully deleted.")
     @utilities.whitelisted
@@ -53,8 +57,11 @@ class PeakItem(Resource):
         Args:
             peak_id (str): ID of the peak
         """
-        db_instance.remove_peak(peak_id)
-        return None, 204
+        success = db_instance.remove_peak(peak_id)
+        if success:
+            return None, 204
+        else:
+            return None, 404
 
 
 @ns_peaks.route("/<string:bottom_left>/<string:upper_right>")

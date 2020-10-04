@@ -24,6 +24,7 @@ mkvirtualenv -p python3 peakdb
 workon peakdb
 pip install -r requirements.txt
 python setup.py install
+cd ..
 ```
 
 Front:
@@ -31,6 +32,7 @@ Front:
 ```bash
 cd front/
 npm install
+cd ..
 ```
 
 ## Development usage
@@ -39,12 +41,15 @@ npm install
 
 ```bash
 python server/peakdb/app.py
+```
+Served at <localhost:5000/peaks>
+
+Optionally , a front Vue server is available :
+```bash
 cd front/
 npm run serve
 ```
-
-Front is served under localhost:8080
-Back under localhost:5000/peaks
+Front pages are available at <localhost:8080> and <localhost:8080/peaks>
 
 ### Run the tests
 
