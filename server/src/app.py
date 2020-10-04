@@ -1,12 +1,14 @@
 import logging.config
 from flask_cors import CORS
-from flask import Flask, jsonify, request, Blueprint
+from flask import Flask, jsonify, request, Blueprint, cli
+
+cli.load_dotenv()
+
 from database.db import DB
 import uuid
 import os
 from api import restplus
 from api.peaks.endpoints import ns as peaks_ns
-import settings
 
 # instantiate the app
 app = Flask(__name__)
@@ -17,10 +19,6 @@ logging_conf_path = os.path.normpath(
 )
 logging.config.fileConfig(logging_conf_path)
 log = logging.getLogger(__name__)
-
-
-def configure_app(app):
-    app.config["MONGODB_SETTINGS"] = {"host": "mongodb://localhost/peaks"}
 
 
 def create_blueprint(app):
@@ -36,14 +34,12 @@ def create_blueprint(app):
 def after_request(response):
     response.headers.set("Access-Control-Allow-Origin", "*")
     response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-    # response.headers.set("Content-Type", "application/json")
     return response
 
 
 def main():
-    configure_app(app)
     create_blueprint(app)
-    app.run(debug=settings.DEBUG)
+    app.run(debug=os.environ["APP_DEBUG"])
 
 
 if __name__ == "__main__":

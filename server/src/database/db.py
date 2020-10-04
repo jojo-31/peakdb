@@ -3,6 +3,10 @@ from bson.json_util import dumps, loads
 from bson.objectid import ObjectId
 import json
 from typing import List, Union
+import os
+import logging
+
+log = logging.getLogger(__name__)
 
 PEAKS = [
     {"name": "Mont Valier", "altitude": 2838, "position": [42.79778, 1.08556]},
@@ -13,11 +17,17 @@ PEAKS = [
 
 class DB:
     def __init__(self):
-        client = MongoClient("mongodb://localhost")
-        self.db = client.peaks
-        self.db.posts.delete_many({})
-        self.db.posts.insert_many(PEAKS)
-        self.db.posts.create_index([("position", GEOSPHERE)])
+        MONGO_URI = f"mongodb://{os.environ['MONGODB_HOSTNAME']}:{os.environ['MONGODB_PORT']}/{os.environ['MONGODB_DATABASE']}"
+
+        try:
+            client = MongoClient(MONGO_URI)
+            self.db = client.peaks
+            self.db.posts.delete_many({})
+            self.db.posts.insert_many(PEAKS)
+            self.db.posts.create_index([("position", GEOSPHERE)])
+        except Exception as e:
+            log.error(e)
+            log.error("Connection to DB impossible. Continuing anyway...")
 
     def get_peaks(self) -> List[dict]:
         """Get all peaks currently in the DB"""
