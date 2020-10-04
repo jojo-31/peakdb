@@ -2,7 +2,17 @@ import os
 from pathlib import Path
 import logging.config
 from flask_cors import CORS
-from flask import Flask, jsonify, request, Blueprint, cli
+from flask import (
+    Flask,
+    jsonify,
+    request,
+    Blueprint,
+    cli,
+    render_template,
+    abort,
+)
+from flask import send_from_directory, url_for
+from jinja2 import TemplateNotFound
 
 dir_path = Path(os.path.realpath(__file__)).parent / ".env"
 cli.load_dotenv(dir_path)
@@ -21,6 +31,7 @@ logging_conf_path = os.path.normpath(
 logging.config.fileConfig(logging_conf_path)
 log = logging.getLogger(__name__)
 
+sample_page = Blueprint("", "", template_folder="templates")
 
 def create_blueprints(app):
     blueprint = Blueprint("peaks", __name__, url_prefix="/peaks")
@@ -35,6 +46,7 @@ def create_blueprints(app):
     CORS(blueprint, resources={r"*": {"origins": "*"}})
     app.register_blueprint(blueprint)
 
+    app.register_blueprint(sample_page, url_prefix="/")
 
 @app.after_request
 def after_request(response):

@@ -14,6 +14,11 @@ PEAKS = [
     {"name": "Pic de Maubermé", "altitude": 2880, "position": [42.79417, 0.91722]},
     {"name": "Pic de Crabère", "altitude": 2630, "position": [42.826039, 0.858633]},
 ]
+IPS = [
+    {"ip": "124.25.3.12", "date": datetime.datetime(2020,1,1,12,51,1).strftime("%m/%d/%Y, %H:%M:%S")},
+    {"ip": "18.65.97.2", "date": datetime.datetime(2020,2,1,12,51,1).strftime("%m/%d/%Y, %H:%M:%S")},
+    {"ip": "8.65.147.25", "date": datetime.datetime(2020,1,1,14,59,32).strftime("%m/%d/%Y, %H:%M:%S")},
+]
 
 
 class DB:
@@ -27,6 +32,9 @@ class DB:
             self.db.posts.insert_many(PEAKS)
             self.db.posts.create_index([("position", GEOSPHERE)])
             self.ip_db = client.black_ips
+            self.ip_db.posts.delete_many({})
+            self.ip_db.posts.insert_many(IPS)
+
         except Exception as e:
             log.error(e)
             log.error("Connection to DB impossible. Continuing anyway...")
